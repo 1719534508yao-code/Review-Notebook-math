@@ -1,0 +1,174 @@
+{
+  "exam_id": 1,
+  "model": "(人工草拟·待用户复核)",
+  "items": [
+    {
+      "number": 1,
+      "qtype": "选择题",
+      "primary_kp": "集合与逻辑/交集、并集、补集运算",
+      "secondary_kps": [],
+      "note": "A={-1,0,1},B={x|x(x-1)=0},求A∩B",
+      "_conf": "high"
+    },
+    {
+      "number": 2,
+      "qtype": "选择题",
+      "primary_kp": "不等式/不等式的性质与大小比较",
+      "secondary_kps": [],
+      "note": "ab<0 判不等式成立",
+      "_conf": "high"
+    },
+    {
+      "number": 3,
+      "qtype": "选择题",
+      "primary_kp": "函数与导数/函数的单调性与奇偶性",
+      "secondary_kps": [],
+      "note": "既奇又在(0,+∞)递增",
+      "_conf": "high"
+    },
+    {
+      "number": 4,
+      "qtype": "选择题",
+      "primary_kp": "概率与统计/回归分析与独立性检验",
+      "secondary_kps": [],
+      "note": "线性回归方程求残差",
+      "_conf": "high"
+    },
+    {
+      "number": 5,
+      "qtype": "选择题",
+      "primary_kp": "计数原理与二项式/分类加法与分步乘法计数原理",
+      "secondary_kps": [],
+      "note": "6男选2+5女选2，上午下午排班",
+      "_conf": "mid"
+    },
+    {
+      "number": 6,
+      "qtype": "选择题",
+      "primary_kp": "集合与逻辑/充分条件与必要条件",
+      "secondary_kps": [],
+      "note": "判断充分/必要",
+      "_conf": "high"
+    },
+    {
+      "number": 7,
+      "qtype": "选择题",
+      "primary_kp": "函数与导数/用导数研究函数的单调性",
+      "secondary_kps": [],
+      "note": "给f'图象判结论（也涉及极值/切线，有歧义）",
+      "_conf": "mid"
+    },
+    {
+      "number": 8,
+      "qtype": "选择题",
+      "primary_kp": "概率与统计/回归分析与独立性检验",
+      "secondary_kps": [],
+      "note": "2x2列联表独立性检验",
+      "_conf": "high"
+    },
+    {
+      "number": 9,
+      "qtype": "选择题",
+      "primary_kp": "三角函数与解三角形/两角和差公式与二倍角",
+      "secondary_kps": [],
+      "note": "sin2x 在[0,π]的最值→二倍角",
+      "_conf": "mid"
+    },
+    {
+      "number": 10,
+      "qtype": "选择题",
+      "primary_kp": "不等式/一元二次、分式与绝对值不等式解法",
+      "secondary_kps": [],
+      "note": "分段函数+分式不等式整数解（也可argue 44 能成立）",
+      "_conf": "low"
+    },
+    {
+      "number": 11,
+      "qtype": "填空题",
+      "primary_kp": "函数与导数/指数与对数的运算及换底",
+      "secondary_kps": [],
+      "note": "log 计算",
+      "_conf": "high"
+    },
+    {
+      "number": 12,
+      "qtype": "填空题",
+      "primary_kp": "计数原理与二项式/展开式指定项与系数和问题",
+      "secondary_kps": [],
+      "note": "(x^2+1)^5 指定项系数+系数和",
+      "_conf": "high"
+    },
+    {
+      "number": 13,
+      "qtype": "填空题",
+      "primary_kp": "概率与统计/样本数字特征·平均数方差标准差",
+      "secondary_kps": [],
+      "note": "加入a使均值不增方差减",
+      "_conf": "high"
+    },
+    {
+      "number": 14,
+      "qtype": "填空题",
+      "primary_kp": "概率与统计/条件概率与概率乘法公式",
+      "secondary_kps": [],
+      "note": "两品牌占有率→全概率求不维修概率",
+      "_conf": "mid"
+    },
+    {
+      "number": 15,
+      "qtype": "填空题",
+      "primary_kp": "函数与导数/函数的周期性与对称性",
+      "secondary_kps": [],
+      "note": "f(1+x)=f(3-x) 等对称/周期条件",
+      "_conf": "high"
+    },
+    {
+      "number": 16,
+      "qtype": "填空题",
+      "primary_kp": "函数与导数/新定义函数的性质探究",
+      "secondary_kps": [],
+      "note": "tanh 作为新定义函数判性质",
+      "_conf": "mid"
+    },
+    {
+      "number": 17,
+      "qtype": "概率统计",
+      "primary_kp": "概率与统计/事件的相互独立性与独立重复试验",
+      "secondary_kps": [],
+      "note": "甲概率2/3、乙丙各对6道→至少1人对",
+      "_conf": "mid"
+    },
+    {
+      "number": 18,
+      "qtype": "函数导数",
+      "primary_kp": "函数与导数/导数的运算与几何意义·切线",
+      "secondary_kps": [],
+      "note": "求切线方程+单调区间",
+      "_conf": "high"
+    },
+    {
+      "number": 19,
+      "qtype": "概率统计",
+      "primary_kp": "概率与统计/频率分布直方图与百分位数",
+      "secondary_kps": [],
+      "note": "收看时长频率分布",
+      "_conf": "high"
+    },
+    {
+      "number": 20,
+      "qtype": "函数导数",
+      "primary_kp": "函数与导数/导数的极值与最值",
+      "secondary_kps": [],
+      "note": "xe^x-ax 单调性/极值点（也涉及18）",
+      "_conf": "mid"
+    },
+    {
+      "number": 21,
+      "qtype": "新定义题",
+      "primary_kp": "集合与逻辑/集合的新定义与计数问题",
+      "secondary_kps": [],
+      "note": "集合具有性质P的新定义压轴",
+      "_conf": "high"
+    }
+  ]
+}

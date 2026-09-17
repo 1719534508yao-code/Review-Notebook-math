@@ -1,0 +1,93 @@
+/* 试卷错题整理 —— T6 气泡图样式（独立文件，避免与 style.css 的并行修改互相覆盖） */
+
+#view-bubbles { --bb-surface: #ffffff; --bb-ink: #1f2329; --bb-ink2: #52514e; --bb-muted: #898781; }
+
+/* ── 筛选条 ── */
+#bb-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+          background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+          padding: 10px 14px; margin-bottom: 12px; }
+#bb-bar label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #444; }
+#bb-bar select, #bb-bar input { font-size: 13px; padding: 5px 8px; border-radius: 6px;
+                                border: 1px solid #cfd4da; background: #fff; }
+#bb-bar button { font-size: 13px; padding: 6px 12px; border-radius: 6px; cursor: pointer;
+                 border: 1px solid #cfd4da; background: #fff; color: #444; }
+#bb-bar button:hover { background: #f3f5f7; }
+#bb-bar .bb-spacer { flex: 1; }
+
+/* ── 概览条 ── */
+#bb-meta { margin: 0 0 10px; }
+.bb-sum { font-size: 13px; color: var(--bb-ink2); }
+.bb-sum b { color: var(--bb-ink); }
+.bb-sum b.err { color: #d03b3b; }
+.bb-warn { margin-top: 6px; font-size: 12.5px; color: #7a5a17; background: #fff7e8;
+           border: 1px solid #f0d9a8; border-radius: 8px; padding: 7px 10px; }
+
+/* ── 图例（颜色 = 错误率）── */
+#bb-legend { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+             margin: 0 0 8px; font-size: 12px; color: var(--bb-ink2); }
+.bb-ramp { width: 180px; height: 10px; border-radius: 5px;
+           background: linear-gradient(90deg, #0ca30c 0%, #fab219 50%, #d03b3b 100%);
+           border: 1px solid rgba(11,11,11,.10); }
+.bb-lg-ticks { display: flex; width: 180px; justify-content: space-between;
+               font-size: 11px; color: var(--bb-muted); }
+.bb-lg-ticks i { font-style: normal; }
+.bb-lg-note { color: var(--bb-muted); }
+
+/* ── 图 + 抽屉 ── */
+#bb-main { display: flex; gap: 12px; align-items: flex-start; }
+#bb-chart { position: relative; flex: 1 1 auto; min-width: 0; background: #fff;
+            border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+#bb-chart svg { display: block; width: 100%; height: auto; }
+#bb-chart.loading { opacity: .55; }
+#bb-chart.empty::after { content: "该筛选下还没有已打标的题 —— 先在「上传 → 复核」里把卷子标完题，再来看看。";
+                         position: absolute; inset: 0; display: grid; place-items: center;
+                         color: #8a9099; font-size: 13px; text-align: center; padding: 20px; }
+#bb-chart.empty svg { visibility: hidden; }
+.bb-cat-label, .bb-cat-sub, .bb-num { user-select: none; }
+
+/* tooltip */
+#bb-tip { position: absolute; z-index: 5; pointer-events: none; width: max-content;
+          max-width: 280px; background: #fff; border: 1px solid rgba(11,11,11,.12);
+          border-radius: 8px; box-shadow: 0 6px 18px rgba(11,11,11,.12);
+          padding: 8px 10px; font-size: 12px; }
+.bb-tip-h { font-weight: 700; color: var(--bb-ink); margin-bottom: 4px; line-height: 1.35; }
+.bb-tip-k { color: var(--bb-muted); margin-right: 10px; }
+.bb-tip-v { color: var(--bb-ink); font-weight: 600; float: right; font-variant-numeric: tabular-nums; }
+#bb-tip > div:not(.bb-tip-h):not(.bb-tip-f) { overflow: hidden; }
+.bb-tip-f { margin-top: 5px; padding-top: 5px; border-top: 1px solid #eef0f2;
+            color: var(--bb-muted); font-size: 11px; }
+
+/* 抽屉：该知识点错题缩略图 */
+#bb-drawer { flex: 0 0 320px; max-width: 320px; background: #fff; border: 1px solid #e5e7eb;
+             border-radius: 12px; padding: 12px; max-height: 640px; overflow: auto; }
+#bb-drawer-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+#bb-drawer-title { font-size: 14px; font-weight: 700; flex: 1; }
+#bb-drawer-close { border: 0; background: none; font-size: 16px; cursor: pointer; color: #646a73; }
+.bb-drawer-sum { font-size: 12.5px; color: var(--bb-ink2); margin: 0 0 8px; }
+.bb-thumbs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.bb-thumb { padding: 0; border: 1px solid #e5e7eb; border-radius: 8px; background: #fafbfc;
+            cursor: pointer; overflow: hidden; display: flex; flex-direction: column; }
+.bb-thumb:hover { border-color: #1456b0; }
+.bb-thumb img { width: 100%; height: 96px; object-fit: contain; display: block; background: #fff; }
+.bb-thumb-noimg { display: grid; place-items: center; height: 96px; color: #b9bec6; font-size: 12px; }
+.bb-thumb-cap { font-size: 11px; color: var(--bb-ink2); padding: 4px 5px; text-align: left;
+                line-height: 1.35; }
+#bb-big { margin-bottom: 10px; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+#bb-big img { width: 100%; max-height: 320px; object-fit: contain; display: block; background: #fff; }
+.bb-big-cap { font-size: 11.5px; color: var(--bb-ink2); padding: 5px 7px; background: #fafbfc; }
+
+/* ── 数据表（relief：不依赖颜色也能读数）── */
+#bb-table { margin-top: 12px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+            padding: 12px 14px; font-size: 13px; }
+#bb-table table { width: 100%; border-collapse: collapse; }
+#bb-table th, #bb-table td { text-align: left; padding: 6px 8px;
+                             border-bottom: 1px solid #eef0f2; }
+#bb-table th { color: var(--bb-muted); font-weight: 600; font-size: 12px; }
+#bb-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.bb-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+          margin-right: 6px; vertical-align: middle; border: 1px solid rgba(11,11,11,.10); }
+
+@media (max-width: 900px) {
+  #bb-main { flex-direction: column; }
+  #bb-drawer { flex: 1 1 auto; max-width: none; width: 100%; max-height: none; }
+}

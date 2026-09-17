@@ -1,0 +1,70 @@
+/* ── 首页汇总（已上传的卷子：目录树 + 量级横条） ──
+   单系列单色：主色 #1456b0，只随**层级**变浅（编码"第几层"），不随数值变。
+   数值由条长 + 右侧文字列双重给出，故不依赖颜色也能读全。 */
+
+#home-summary { margin-top: 18px; }
+
+.hs-box { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+          padding: 16px 18px; }
+.hs-box h2 { margin: 0 0 12px; font-size: 16px; }
+
+/* 概览数字（文字用文本色，不用系列色） */
+.hs-stats { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 14px;
+            font-size: 13px; color: #55606e; }
+.hs-stat b { font-size: 19px; color: #1f2329; font-weight: 600; margin-right: 3px; }
+.hs-stat.muted { color: #8a9099; }
+.hs-stat.muted b { font-size: 13px; color: #8a9099; font-weight: 400; }
+
+/* 行：名称 | 套数 | 横条 | 题数 | 错题 */
+.hs-row { display: grid;
+          grid-template-columns: minmax(150px, 1fr) 52px 130px 60px 52px 30px;
+          align-items: center; gap: 10px; padding: 4px 6px; border-radius: 6px;
+          font-size: 13px; }
+.hs-row.hs-head { color: #8a9099; font-size: 12px; border-bottom: 1px solid #eef0f2;
+                  padding-bottom: 6px; margin-bottom: 4px; }
+.hs-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hs-n, .hs-q, .hs-w { text-align: right; color: #55606e; font-variant-numeric: tabular-nums; }
+.hs-w { color: #c93c37; }
+.hs-bar { display: block; height: 10px; background: #f3f5f7; border-radius: 6px;
+          overflow: hidden; }
+/* 4px 圆角数据端，锚在基线（左端） */
+.hs-bar i { display: block; height: 100%; background: #1456b0;
+            border-radius: 0 4px 4px 0; }
+
+/* 层级：越深越浅（同一色相，恒定编码"第几层"） */
+.hs-l0 .hs-bar i { opacity: 1; }
+.hs-l1 .hs-bar i { opacity: .82; }
+.hs-l2 .hs-bar i { opacity: .66; }
+.hs-l3 .hs-bar i { opacity: .5; }
+.hs-l4 .hs-bar i { opacity: .34; }
+
+.hs-l0 { font-weight: 600; }
+.hs-l0 .hs-name { font-size: 14px; }
+.hs-l1 .hs-name { font-weight: 600; color: #1f2329; }
+.hs-l2 .hs-name { color: #3d454e; }
+.hs-l3 .hs-name { color: #55606e; }
+.hs-l4 { color: #8a9099; }
+.hs-l4 .hs-name { color: #8a9099; }
+.hs-l4 .hs-n, .hs-l4 .hs-q { color: #8a9099; }
+.hs-l4 .hs-w { color: #d98b88; }
+
+/* 卷子行可点，进「复核」页 */
+.hs-row.hs-click { cursor: pointer; }
+.hs-row.hs-click:hover { background: #f4f7fd; }
+.hs-row.hs-exam:hover .hs-name { color: #1456b0; }
+
+/* 删除整套卷：默认淡出，hover 该行才显形（避免一排垃圾桶太吵） */
+.hs-op { display: flex; justify-content: flex-end; }
+.hs-del { border: 1px solid transparent; background: none; cursor: pointer;
+          font-size: 13px; line-height: 1; padding: 3px 5px; border-radius: 5px;
+          opacity: 0; transition: opacity .12s; }
+.hs-row.hs-exam:hover .hs-del, .hs-del:focus-visible { opacity: 1; }
+.hs-del:hover { background: #fdf3f2; border-color: #f0cfcd; }
+/* 触屏没有 hover：直接常显 */
+@media (hover: none) { .hs-del { opacity: .55; } }
+
+@media (max-width: 720px) {
+  .hs-row { grid-template-columns: minmax(90px, 1fr) 46px 70px 52px 46px 28px; gap: 6px;
+            font-size: 12px; }
+  .hs-del { opacity: .55; }
+}

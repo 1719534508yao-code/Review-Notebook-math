@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>打标金标准标注 / 评测</title>
+<!--
+  开发用页面（不影响产品 UI）。用途：给「T4 打标准确率」建金标准集并即时看分。
+  架构：本页是纯前端 —— 题目/图片来自 /api，AI 预测与人工真值都走 JSON 文件导入导出，
+        与 CLI（tests/eval_tagger.py）共用同一份格式，可互相 round-trip。
+  访问：服务起在 8000 后打开 http://127.0.0.1:8000/eval.html
+-->
+<style>
+  :root { --line:#e5e7eb; --ink:#24292f; --dim:#6b7280; --ok:#1f8b4c; --bad:#d93025; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.5 -apple-system,"PingFang SC","Helvetica Neue",sans-serif;
+         color:var(--ink); background:#f6f7f9; }
+  header { position:sticky; top:0; z-index:5; background:#fff; border-bottom:1px solid var(--line);
+           padding:10px 16px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+  h1 { font-size:16px; margin:0; }
+  main { padding:16px; max-width:1200px; margin:0 auto; }
+  button, select, input[type=file] { font:inherit; font-size:13px; }
+  button { padding:4px 10px; border:1px solid #cfd4da; background:#fff; border-radius:6px; cursor:pointer; }
+  button:hover { background:#f2f4f6; }
+  button.primary { background:#1f6feb; border-color:#1f6feb; color:#fff; }
+  .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .muted { color:var(--dim); font-size:12px; }
+  #score { background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 14px;
+           margin-bottom:14px; }
+  #score table { border-collapse:collapse; font-size:13px; }
+  #score td { padding:2px 14px 2px 0; }
+  #score b { font-variant-numeric:tabular-nums; }
+  .bar { display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+         background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px 14px;
+         margin-bottom:14px; }
+  .cards { display:grid; gap:12px; }
+  .q { background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px;
+       display:grid; grid-template-columns:300px 1fr; gap:12px; }
+  .q.miss { border-color:#f3b5ae; background:#fffafa; }
+  .q img { width:100%; border:1px solid var(--line); border-radius:6px; background:#fff; cursor:zoom-in; }
+  .q .num { font-weight:700; margin-bottom:6px; }
+  .q .ai { margin-top:8px; padding:6px 8px; background:#f8f9fb; border:1px dashed #d8dde3;
+           border-radius:6px; font-size:12px; color:#4b5563; }
+  .q .ai b { color:#111; }
+  .q .f { display:flex; gap:8px; align-items:center; margin-bottom:6px; flex-wrap:wrap; }
+  .q .f label { width:64px; color:var(--dim); font-size:12px; }
+  .q select { padding:4px 6px; border:1px solid #cfd4da; border-radius:6px; background:#fff;
+              max-width:520px; flex:1; }
+  .q input.note { flex:1; padding:4px 6px; border:1px solid #cfd4da; border-radius:6px; max-width:520px; }
+  details { margin-top:6px; font-size:12px; color:#555; }
+  details pre { white-space:pre-wrap; word-break:break-all; background:#f8f9fb; padding:6px;
+                border-radius:6px; margin:4px 0 0; font-size:11px; }
+  .pill { display:inline-block; padding:1px 7px; border-radius:999px; font-size:11px; }
+  .pill.ok { background:#e8f6ee; color:var(--ok); }
+  .pill.bad { background:#fdecea; color:var(--bad); }
+  .pill.gray { background:#eef1f4; color:#55606e; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🎯 打标金标准标注 / 评测</h1>
+  <span class="muted">人工标真值 → 导出 → 与 AI 预测对比算准确率</span>
+</header>
+
+<main>
+  <div class="bar">
+    <label>试卷 <select id="exam"></select></label>
+    <button id="btn-load-pred">导入 AI 预测 JSON</button>
+    <input type="file" id="file-pred" accept=".json" hidden>
+    <button id="btn-load-gold">导入已有标注 JSON</button>
+    <input type="file" id="file-gold" accept=".json" hidden>
+    <button id="btn-export" class="primary">导出标注 JSON</button>
+    <button id="btn-clear">清空本题标注</button>
+    <span id="msg" class="muted"></span>
+  </div>
+
+  <div id="score"></div>
+  <div id="cards" class="cards"></div>
+</main>
+
+<script>
+'use strict';
+var S = { examId:null, questions:[], tree:[], kpFlat:[], qtypes:[], gold:{}, pred:{} };
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function norm(s){ return String(s==null?'':s).replace(/[\s　]/g,''); }
+function api(m,u){ return fetch(u).then(function(r){
+  if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }); }
+function msg(t){ $('msg').textContent = t || ''; }
+function goldKey(){ return 'eval-gold-exam-' + S.examId; }
+function saveGold(){ try{ localStorage.setItem(goldKey(), JSON.stringify(S.gold)); }catch(e){} }
+function loadGold(){ try{ S.gold = JSON.parse(localStorage.getItem(goldKey())||'{}'); }catch(e){ S.gold={}; } }
+
+/* 知识点编号：与后端 compact_kp_tree 同序（大类下叶子顺序编号），便于和 CLI 对账 */
+function buildKp() {
+  S.kpFlat = [];
+  var no = 0;
+  (S.tree||[]).forEach(function(cat){
+    (cat.children||[]).forEach(function(leaf){
+      no += 1;
+      S.kpFlat.push({ no:no, cat:cat.name, name:leaf.name,
+                      path:cat.name+'/'+leaf.name, id:leaf.id });
+    });
+  });
+}
+
+function kpSelectHtml(sel) {
+  var h = '<option value="">— 未标注 —</option>';
+  var curCat = null, buf = '';
+  S.kpFlat.forEach(function(k){
+    if (k.cat !== curCat) {
+      if (curCat) buf += '</optgroup>';
+      buf += '<optgroup label="'+esc(k.cat)+'">'; curCat = k.cat;
+    }
+    buf += '<option value="'+esc(k.path)+'"'+(k.path===sel?' selected':'')+'>'+
+           k.no+'. '+esc(k.name)+'</option>';
+  });
+  if (curCat) buf += '</optgroup>';
+  return h + buf;
+}
+
+function qtypeSelectHtml(sel) {
+  var h = '<option value="">— 未标注 —</option>';
+  S.qtypes.forEach(function(t){
+    h += '<option value="'+esc(t.name)+'"'+(t.name===sel?' selected':'')+'>'+esc(t.name)+'</option>';
+  });
+  return h;
+}
+
+function aiOf(n){ return S.pred[n] || null; }
+function goldOf(n){
+  if (!S.gold[n]) S.gold[n] = {number:n, qtype:'', primary_kp:'', note:''};
+  return S.gold[n];
+}
+
+function render() {
+  var box = $('cards'); box.innerHTML = '';
+  S.questions.forEach(function(q){
+    var n = q.number, g = goldOf(n), ai = aiOf(n);
+    var kpOk = ai && g.primary_kp && norm(ai.primary_kp)===norm(g.primary_kp);
+    var catOk = ai && g.primary_kp && ai.primary_kp &&
+                norm(ai.primary_kp).split('/')[0]===norm(g.primary_kp).split('/')[0];
+    var qtOk = ai && g.qtype && norm(ai.qtype)===norm(g.qtype);
+    var miss = (g.primary_kp && ai && !kpOk);
+
+    var el = document.createElement('div');
+    el.className = 'q' + (miss?' miss':'');
+    var img = q.image_url
+      ? '<img src="'+esc(q.image_url)+'" alt="第'+n+'题" onclick="window.open(this.src)">'
+      : '<div class="muted" style="padding:20px;text-align:center;border:1px dashed var(--line)">未定位 · 无切片</div>';
+
+    var mark = '';
+    if (g.primary_kp && ai) {
+      mark = kpOk ? '<span class="pill ok">叶子命中</span>'
+           : catOk ? '<span class="pill gray">大类对·叶子错</span>'
+                   : '<span class="pill bad">判错</span>';
+      if (!qtOk) mark += ' <span class="pill bad">题型错</span>';
+    } else if (g.primary_kp) { mark = '<span class="pill gray">AI 未答</span>'; }
+
+    el.innerHTML =
+      '<div>' + img + '</div>' +
+      '<div>' +
+        '<div class="num">第 '+n+' 题 ' + mark + '</div>' +
+        '<div class="f"><label>真值题型</label><select data-n="'+n+'" data-f="qtype">'+
+            qtypeSelectHtml(g.qtype)+'</select></div>' +
+        '<div class="f"><label>真值知识</label><select data-n="'+n+'" data-f="primary_kp">'+
+            kpSelectHtml(g.primary_kp)+'</select></div>' +
+        '<div class="f"><label>备注</label><input class="note" data-n="'+n+'" data-f="note" value="'+
+            esc(g.note)+'"></div>' +
+        '<div class="ai">AI 判定：<b>'+esc(ai? ai.qtype : '(无预测数据)')+'</b> · '+
+            '<b>'+esc(ai? ai.primary_kp : '')+'</b>' +
+            (ai && ai.confidence!=null ? ' <span class="muted">conf='+ai.confidence+'</span>' : '') +
+        '</div>' +
+        '<details><summary>题干文本</summary><pre>'+esc(q.raw_text||'(空)')+'</pre></details>' +
+      '</div>';
+    box.appendChild(el);
+  });
+
+  box.querySelectorAll('select,input').forEach(function(elm){
+    elm.addEventListener('change', function(){
+      var n = parseInt(this.dataset.n,10), f = this.dataset.f;
+      goldOf(n)[f] = this.value;
+      saveGold(); render(); score();
+    });
+  });
+  score();
+}
+
+function score() {
+  var N=0, qt=0, leaf=0, cat=0, ans=0, leafAns=0, haveAi=0;
+  S.questions.forEach(function(q){
+    var n=q.number, g=goldOf(n), ai=aiOf(n);
+    if (!g.qtype && !g.primary_kp) return;      // 真值没填 → 跳过
+    N++;
+    if (!ai) return;
+    haveAi++;
+    if (ai.qtype && g.qtype && norm(ai.qtype)===norm(g.qtype)) qt++;
+    if (ai.primary_kp) {
+      ans++;
+      if (g.primary_kp && norm(ai.primary_kp)===norm(g.primary_kp)) { leaf++; leafAns++; }
+      else if (g.primary_kp && norm(ai.primary_kp).split('/')[0]===norm(g.primary_kp).split('/')[0]) cat++;
+    }
+  });
+  var pct=function(a,b){ return b? (100*a/b).toFixed(1)+'%' : '—'; };
+  var h = '<table>';
+  if (!N) {
+    h += '<tr><td colspan="2">还没填真值。请在下面每张卡片选「真值题型 / 真值知识」，'+
+         '或「导入已有标注 JSON」继续之前的进度。</td></tr>';
+  } else if (!haveAi) {
+    h += '<tr><td colspan="2">已标真值 '+N+' 题，但还没导入 AI 预测 —— '+
+         '先 <code>.venv/bin/python tests/eval_tagger.py dump --exam-id '+S.examId+
+         ' --out data/gold/pred_exam'+S.examId+'.json</code> 再点「导入 AI 预测 JSON」。</td></tr>';
+  } else {
+    h += '<tr><td>参与评分</td><td><b>'+N+'</b> 题'+(N>S.questions.length?'':'')+'（已填真值）</td></tr>';
+    h += '<tr><td>题型准确率</td><td><b>'+pct(qt,N)+'</b>　'+qt+'/'+N+'</td></tr>';
+    h += '<tr><td>主知识点 叶子级</td><td><b>'+pct(leaf,N)+'</b>　'+leaf+'/'+N+'　<span class="muted">最严</span></td></tr>';
+    h += '<tr><td>主知识点 大类级</td><td><b>'+pct(leaf+cat,N)+'</b>　'+(leaf+cat)+'/'+N+'　<span class="muted">含叶子命中</span></td></tr>';
+    h += '<tr><td>弃权(未答)率</td><td><b>'+pct(N-ans,N)+'</b>　'+(N-ans)+'/'+N+'</td></tr>';
+  }
+  h += '</table>';
+  $('score').innerHTML = h;
+}
+
+function exportGold() {
+  var items = S.questions.map(function(q){
+    var g = goldOf(q.number);
+    return { number:q.number, qtype:g.qtype, primary_kp:g.primary_kp,
+             secondary_kps:[], note:g.note || '' };
+  });
+  var data = { exam_id:S.examId, model:'(人工标注)', items:items };
+  var blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'gold_exam'+S.examId+'.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  msg('已导出，建议存到 data/gold/ 下，然后用 CLI 打分。');
+}
+
+function importJson(file, kind) {
+  var fr = new FileReader();
+  fr.onload = function(){
+    try {
+      var d = JSON.parse(fr.result);
+      var map = {};
+      (d.items||[]).forEach(function(it){ map[it.number] = it; });
+      if (kind==='pred') {
+        S.pred = map;
+        msg('已导入 AI 预测 '+Object.keys(map).length+' 题');
+      } else {
+        var g={};
+        Object.keys(map).forEach(function(k){
+          g[k] = { number:map[k].number, qtype:map[k].qtype||'',
+                   primary_kp:map[k].primary_kp||'', note:map[k].note||'' };
+        });
+        S.gold = g; saveGold();
+        msg('已导入已有标注 '+Object.keys(g).length+' 题');
+      }
+      render();
+    } catch(e) { alert('JSON 解析失败：'+e.message); }
+  };
+  fr.readAsText(file);
+}
+
+/* ══════════ 启动 ══════════ */
+$('btn-load-pred').onclick = function(){ $('file-pred').click(); };
+$('btn-load-gold').onclick = function(){ $('file-gold').click(); };
+$('file-pred').onchange = function(){ if(this.files[0]) importJson(this.files[0],'pred'); };
+$('file-gold').onchange = function(){ if(this.files[0]) importJson(this.files[0],'gold'); };
+$('btn-export').onclick = exportGold;
+$('btn-clear').onclick = function(){
+  if(!confirm('清空本卷所有人工标注？（AI 预测不受影响）')) return;
+  S.gold = {}; saveGold(); render();
+};
+
+api('GET','/api/meta/enums').then(function(e){
+  S.qtypes = e.qtypes;
+  return api('GET','/api/kp/tree?subject=数学');
+}).then(function(t){
+  S.tree = t.tree; buildKp();
+  return api('GET','/api/exams');
+}).then(function(d){
+  var sel = $('exam');
+  d.exams.forEach(function(x){
+    var o=document.createElement('option');
+    o.value=x.id; o.textContent=x.year+' '+x.district+' '+x.exam_type+' · #'+x.id;
+    sel.appendChild(o);
+  });
+  var pick = d.exams.filter(function(x){ return x.n_questions>0; })[0] || d.exams[0];
+  sel.value = pick.id;
+  return openExam(pick.id);
+}).catch(function(err){ msg('初始化失败：'+err.message); });
+
+$('exam').onchange = function(){ openExam(parseInt(this.value,10)); };
+
+function openExam(id){
+  S.examId = id; S.pred = {}; loadGold();
+  return api('GET','/api/exams/'+id+'/questions').then(function(d){
+    S.questions = d.questions;
+    render();
+    msg('已载入 '+d.questions.length+' 题；本地已存标注 '+
+        Object.keys(S.gold).filter(function(k){ return S.gold[k].qtype; }).length+' 题');
+  });
+}
+</script>
+</body>
+</html>

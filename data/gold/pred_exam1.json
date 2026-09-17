@@ -1,0 +1,138 @@
+{
+  "exam_id": 1,
+  "model": "glm-4v-plus",
+  "items": [
+    {
+      "number": 1,
+      "qtype": "选择题",
+      "primary_kp": "集合与逻辑/交集、并集、补集运算",
+      "confidence": 0.9
+    },
+    {
+      "number": 2,
+      "qtype": "选择题",
+      "primary_kp": "不等式/不等式的性质与大小比较",
+      "confidence": 0.9
+    },
+    {
+      "number": 3,
+      "qtype": "选择题",
+      "primary_kp": "函数与导数/函数的单调性与奇偶性",
+      "confidence": 0.9
+    },
+    {
+      "number": 4,
+      "qtype": "选择题",
+      "primary_kp": "数列/倒序相加与错位相减求和",
+      "confidence": 0.9
+    },
+    {
+      "number": 5,
+      "qtype": "选择题",
+      "primary_kp": "计数原理与二项式/分类加法与分步乘法计数原理",
+      "confidence": 0.9
+    },
+    {
+      "number": 6,
+      "qtype": "选择题",
+      "primary_kp": "集合与逻辑/充分条件与必要条件",
+      "confidence": 0.9
+    },
+    {
+      "number": 7,
+      "qtype": "选择题",
+      "primary_kp": "函数与导数/用导数研究函数的单调性",
+      "confidence": 0.9
+    },
+    {
+      "number": 8,
+      "qtype": "选择题",
+      "primary_kp": "概率与统计/随机抽样与分层抽样",
+      "confidence": 0.9
+    },
+    {
+      "number": 9,
+      "qtype": "选择题",
+      "primary_kp": "三角函数与解三角形/两角和差公式与二倍角",
+      "confidence": 0.9
+    },
+    {
+      "number": 10,
+      "qtype": "选择题",
+      "primary_kp": "数列/倒序相加与错位相减求和",
+      "confidence": 0.9
+    },
+    {
+      "number": 11,
+      "qtype": "填空题",
+      "primary_kp": "函数与导数/指数与对数的运算及换底",
+      "confidence": 0.9
+    },
+    {
+      "number": 12,
+      "qtype": "填空题",
+      "primary_kp": "数列/倒序相加与错位相减求和",
+      "confidence": 0.9
+    },
+    {
+      "number": 13,
+      "qtype": "填空题",
+      "primary_kp": "数列/等差数列的基本量与性质",
+      "confidence": 0.9
+    },
+    {
+      "number": 14,
+      "qtype": "概率统计",
+      "primary_kp": "概率与统计/随机抽样与分层抽样",
+      "confidence": 0.9
+    },
+    {
+      "number": 15,
+      "qtype": "填空题",
+      "primary_kp": "函数与导数/函数定义域与值域",
+      "confidence": 0.9
+    },
+    {
+      "number": 16,
+      "qtype": "选择题",
+      "primary_kp": "函数与导数/函数的单调性与奇偶性",
+      "confidence": 0.9
+    },
+    {
+      "number": 17,
+      "qtype": "概率统计",
+      "primary_kp": "概率与统计/古典概型",
+      "confidence": 0.9
+    },
+    {
+      "number": 18,
+      "qtype": "函数导数",
+      "primary_kp": "函数与导数/导数的运算与几何意义·切线",
+      "confidence": 0.9
+    },
+    {
+      "number": 19,
+      "qtype": "概率统计",
+      "primary_kp": "概率与统计/频率分布直方图与百分位数",
+      "confidence": 0.9
+    },
+    {
+      "number": 20,
+      "qtype": "选择题",
+      "primary_kp": "函数与导数/用导数研究函数的单调性",
+      "confidence": 0.9
+    },
+    {
+      "number": 21,
+      "qtype": "新定义题",
+      "primary_kp": "集合与逻辑/集合的新定义与计数问题",
+      "confidence": 0.9
+    },
+    {
+      "number": 22,
+      "qtype": "选择题",
+      "primary_kp": "数列/倒序相加与错位相减求和",
+      "confidence": 0.9
+    }
+  ]
+}

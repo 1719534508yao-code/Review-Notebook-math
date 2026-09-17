@@ -1,0 +1,12 @@
+# Python 3.9 兼容，版本钉死
+fastapi==0.104.1
+uvicorn==0.24.0
+pymupdf==1.24.11
+openai==1.35.13
+python-dotenv==1.0.1
+# 以下为 DESIGN §4 未列出、但后续任务确定需要的传递依赖（见 PROGRESS.md 说明）：
+python-multipart==0.0.6   # T3 文件上传（FastAPI UploadFile 必需）
+pillow==10.4.0            # T2 跨页切片纵向拼接
+httpx==0.27.2             # 传递依赖钉版：openai 1.35.13 与 httpx>=0.28 不兼容
+                          # （httpx 0.28 移除 proxies 参数 → OpenAI() 构造即 TypeError）；
+                          # 上游在 openai>=1.55 才修复。T4 接真实 key 时暴露。

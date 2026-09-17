@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>试卷错题整理</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="bubbles.css">
+  <link rel="stylesheet" href="weekly.css">
+  <link rel="stylesheet" href="home.css">
+</head>
+<body>
+  <header>
+    <h1>📐 试卷错题整理</h1>
+    <nav id="tabs">
+      <button data-view="upload" class="active">上传</button>
+      <button data-view="review">复核</button>
+      <button data-view="wrong">错题本</button>
+      <button data-view="pool">题库</button>
+      <button data-view="bubbles">气泡图</button>
+      <button data-view="weekly">周报</button>
+    </nav>
+    <span id="health"></span>
+  </header>
+
+  <main>
+    <!-- ══════════ 上传 view（§6-T3）══════════ -->
+    <section id="view-upload">
+      <form id="upload-form" autocomplete="off">
+        <h2>上传试卷</h2>
+        <p class="hint">选 PDF 并手选 年份 / 城区 / 考试类型（软件记住上次选择，连续传同区卷子只改文件即可）。
+           切片后源 PDF 暂存，点「确认」后自动删除。</p>
+        <div class="fields">
+          <label>试卷 PDF
+            <input type="file" id="up-file" accept="application/pdf,.pdf" required>
+          </label>
+          <label>年份
+            <input id="up-year" type="number" min="2000" max="2100" step="1" list="year-list" required>
+            <datalist id="year-list"></datalist>
+          </label>
+          <label>城区
+            <input id="up-district" list="district-list" placeholder="如：海淀区（可手填）" required>
+            <datalist id="district-list"></datalist>
+          </label>
+          <label>考试类型
+            <select id="up-type" required></select>
+          </label>
+        </div>
+        <button type="submit" id="up-submit">上传并切片</button>
+        <div id="up-status" role="status"></div>
+      </form>
+
+      <!-- 首页汇总：已上传的卷子按 科目/年份/考试类型/城区 排列（内容由 home.js 生成） -->
+      <div id="home-summary"></div>
+    </section>
+
+    <!-- ══════════ 复核 view（§6-T3）══════════ -->
+    <section id="view-review" hidden>
+      <div id="rv-bar">
+        <label>选择试卷 <select id="rv-exam"></select></label>
+        <span id="rv-meta"></span>
+      </div>
+      <div id="rv-banner" hidden></div>
+      <!-- T4：AI 建议新增知识点 一键确认/忽略（§2-6 / §6-T4） -->
+      <div id="rv-sugg" hidden></div>
+      <!-- T4：无 key 时的手动模式提示（硬性降级路径） -->
+      <div id="rv-manual" hidden></div>
+      <!-- T4：识别进度（轮询 /api/exams/{id}/tagging） -->
+      <div id="rv-progress" hidden></div>
+      <div id="rv-grid" class="grid"></div>
+      <div id="rv-empty" hidden>暂无试卷，请先在「上传」页传一套。</div>
+      <div id="rv-foot">
+        <span id="rv-count"></span>
+        <button id="rv-confirm" disabled>确认无误，开始识别</button>
+      </div>
+    </section>
+
+    <!-- ══════════ 错题本 / 题库 view（§6-T5）：同一列表组件，两个宿主容器 ══════════ -->
+    <!-- 筛选条 + 卡片网格 + 分页由 app.js 的 makeBrowser() 渲染进 .browse 容器 -->
+    <section id="view-wrong" hidden>
+      <div class="browse" data-bank="wrong_bank"></div>
+    </section>
+
+    <section id="view-pool" hidden>
+      <div class="browse" data-bank="pool"></div>
+    </section>
+
+    <!-- ══════════ 气泡图 view（§6-T6）：结构极简，内容由 bubbles.js 生成 ══════════ -->
+    <section id="view-bubbles" hidden>
+      <div id="bb-bar">
+        <label>城区 <select id="bb-district"></select></label>
+        <label>类型 <select id="bb-type"></select></label>
+        <label>年份 <select id="bb-year"></select></label>
+        <label>起 <input type="date" id="bb-from"></label>
+        <label>止 <input type="date" id="bb-to"></label>
+        <button type="button" id="bb-reset">重置</button>
+        <span class="bb-spacer"></span>
+        <button type="button" id="bb-table-toggle">数据表</button>
+      </div>
+      <div id="bb-meta"></div>
+      <div id="bb-legend"></div>
+      <div id="bb-main">
+        <div id="bb-chart"><svg></svg><div id="bb-tip" hidden></div></div>
+        <aside id="bb-drawer" hidden>
+          <div id="bb-drawer-head">
+            <span id="bb-drawer-title"></span>
+            <button type="button" id="bb-drawer-close" title="关闭（Esc）">✕</button>
+          </div>
+          <div id="bb-big" hidden></div>
+          <div id="bb-drawer-body"></div>
+        </aside>
+      </div>
+      <div id="bb-table" hidden></div>
+    </section>
+
+    <!-- ══════════ 周报 view（§6-T7）：内容由 weekly.js 用 marked 渲染计划库 md ══════════ -->
+    <section id="view-weekly" hidden>
+      <div id="wk-bar">
+        <label>时间窗
+          <select id="wk-days">
+            <option value="7" selected>近 7 天（本周）</option>
+            <option value="14">近 14 天</option>
+            <option value="30">近 30 天</option>
+          </select>
+        </label>
+        <label>截止日 <input type="date" id="wk-asof"></label>
+        <button type="button" id="wk-regen">重新生成</button>
+        <label>历史周报 <select id="wk-history"><option value="">— 当前窗口 —</option></select></label>
+        <span id="wk-file"></span>
+      </div>
+      <div id="wk-msg" hidden></div>
+      <div id="wk-cards" hidden></div>
+      <div id="wk-summary" hidden></div>
+      <p class="md-note">以下正文 = <code>archive/数学/计划库/周报-{起}-{止}.md</code> 文件原文（marked 本地渲染，未加工）。</p>
+      <div id="wk-md" class="md"></div>
+    </section>
+
+    <section id="view-soon" hidden>
+      <p class="hint">该页签暂未实现 —— 当前已可用：上传 → 复核 → 错题本 / 题库 / 气泡图 / 周报。</p>
+    </section>
+  </main>
+
+  <!-- 大图查看（两个浏览 view 共用） -->
+  <div id="lightbox" hidden>
+    <div class="lb-box">
+      <button type="button" id="lb-close" title="关闭（Esc）">✕</button>
+      <div class="lb-imgwrap"><img id="lb-img" alt="题目大图"></div>
+      <div id="lb-meta"></div>
+      <div id="lb-actions"></div>
+    </div>
+  </div>
+
+  <script src="vendor/d3.v7.min.js"></script>
+  <script src="vendor/marked.min.js"></script>
+  <script src="app.js"></script>
+  <script src="bubbles.js"></script>
+  <script src="weekly.js"></script>
+  <script src="home.js"></script>
+</body>
+</html>

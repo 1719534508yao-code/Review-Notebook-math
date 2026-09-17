@@ -1,0 +1,58 @@
+/* T7 周报 view 样式（与 bubbles.css 同做法：一个 view 一个 CSS 文件，不动公共 style.css） */
+
+#wk-bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px;
+  padding: 10px 12px; margin-bottom: 12px; background: #f6f8fa;
+  border: 1px solid #e3e6ea; border-radius: 10px; font-size: 13px;
+}
+#wk-bar label { display: inline-flex; align-items: center; gap: 6px; color: #55606e; }
+#wk-bar select, #wk-bar input[type="date"] { font: inherit; padding: 4px 6px;
+  border: 1px solid #cfd6dd; border-radius: 7px; background: #fff; }
+#wk-bar button { font: inherit; padding: 5px 12px; border-radius: 8px; cursor: pointer;
+  border: 1px solid #c8d0d8; background: #fff; }
+#wk-bar button:hover { background: #eef2f6; }
+#wk-bar button:disabled { opacity: .55; cursor: default; }
+#wk-file { margin-left: auto; color: #7a838d; font-size: 12px; word-break: break-all;
+           max-width: 46%; text-align: right; }
+#wk-file a { color: #2b6cb0; }
+
+/* ── 建议卡片 ── */
+#wk-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px; margin-bottom: 12px; }
+#wk-cards[hidden] { display: none; }
+.wk-card { border: 1px solid #e3e6ea; border-left: 4px solid #f0a020; border-radius: 10px;
+           padding: 12px 14px; background: #fffdf6; }
+.wk-card.rule-B { border-left-color: #7aa7d8; background: #f8fbff; }
+.wk-card.rule-none { border-left-color: #b9c0c7; background: #fafbfc; }
+.wk-kp { font-weight: 600; font-size: 15px; color: #1f2933; margin-bottom: 6px; }
+.wk-qt { display: inline-block; font-size: 12px; padding: 2px 9px; border-radius: 999px;
+         background: #eaf3ff; color: #2b6cb0; margin-bottom: 8px; }
+.wk-why { font-size: 13px; color: #55606e; line-height: 1.55; }
+.wk-meta { margin-top: 8px; font-size: 12px; color: #8a9099; }
+.wk-tag { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 11px;
+          background: #f0f2f5; color: #6b7480; margin-right: 6px; }
+
+#wk-summary { padding: 10px 14px; margin-bottom: 12px; border-radius: 10px;
+              background: #f0f7f1; border: 1px solid #d6e6d9; color: #274a2e;
+              font-size: 14px; line-height: 1.65; }
+#wk-summary[hidden] { display: none; }
+#wk-msg { padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 12px; }
+#wk-msg.err { background: #fdecec; border: 1px solid #f3c2c2; color: #8c2b2b; }
+#wk-msg[hidden] { display: none; }
+
+/* ── markdown 渲染（界面显示与计划库里的 md 文件逐字一致）── */
+#wk-md { background: #fff; border: 1px solid #e3e6ea; border-radius: 10px;
+         padding: 6px 22px 18px; font-size: 14px; line-height: 1.7; color: #24292f;
+         overflow-x: auto; }
+#wk-md h1 { font-size: 20px; border-bottom: 1px solid #e6e9ec; padding-bottom: 8px; }
+#wk-md h2 { font-size: 16px; margin-top: 22px; }
+#wk-md table { border-collapse: collapse; margin: 10px 0; font-size: 13px; width: 100%; }
+#wk-md th, #wk-md td { border: 1px solid #e3e6ea; padding: 5px 9px; text-align: left; }
+#wk-md th { background: #f6f8fa; font-weight: 600; }
+#wk-md tr:nth-child(even) td { background: #fcfdfe; }
+#wk-md blockquote { margin: 10px 0; padding: 6px 12px; color: #55606e;
+                    border-left: 3px solid #dfe3e8; background: #fafbfc; }
+#wk-md code { background: #f2f4f7; padding: 1px 5px; border-radius: 5px; font-size: 12px; }
+#wk-md hr { border: 0; border-top: 1px solid #e6e9ec; margin: 18px 0; }
+#wk-md ol, #wk-md ul { padding-left: 22px; }
+.md-note { font-size: 12px; color: #8a9099; margin: 0 0 10px; }
